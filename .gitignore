@@ -1,0 +1,33 @@
+# Dados reais do cliente — NUNCA versionar
+dados/
+**/SAIDA_ContaAzul/
+*.xlsx
+*.xls
+*.csv
+
+# Permitir exemplos/documentação que não contenham dados reais
+!docs/**/*.png
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+.mypy_cache/
+.pytest_cache/
+
+# SO / editores
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Credenciais / segredos
+.env
+*.env
+secrets*.json
+token*.json
+credentials*.json
