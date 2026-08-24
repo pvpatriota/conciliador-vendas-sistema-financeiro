@@ -5,17 +5,18 @@
 Uma rede de franquia de *food service* vende por múltiplos canais — cartão
 (débito/crédito/PIX na maquininha), delivery por marketplace, produtos de um
 parceiro e dinheiro no balcão. Todas essas vendas passam por um **sistema de PDV
-(caixa)**, que é a **fonte-mãe**. A operação financeira usa o **Conta Azul** como
-ERP, alimentado por importação de planilhas.
+(caixa)**, que é a **fonte-mãe**. A operação financeira usa um **sistema financeiro
+(ERP)**, alimentado por importação de planilhas.
 
 O trabalho manual consistia em: exportar relatórios de cada sistema, cruzar tudo,
-converter para o layout do Conta Azul (com regras específicas por forma de
+converter para o layout de importação (com regras específicas por forma de
 pagamento) e importar. Este projeto automatiza esse processo.
 
 ## Princípio central
 
 > Nenhum sistema conversa diretamente com o outro. Um **middleware** no meio puxa
-> cada fonte, normaliza para um modelo único, concilia e entrega para o Conta Azul.
+> cada fonte, normaliza para um modelo único, concilia e entrega para o sistema
+> financeiro.
 
 O PDV concentra tudo; adquirente e marketplace servem de **conferência** (a venda
 que o PDV registra realmente consta na origem? o valor bate?).
@@ -34,15 +35,15 @@ flowchart TD
         LEIT["Leitura + deteccao de layout"]
         NORM["Normalizacao<br/>(modelo unico)"]
         CONC["Conciliacao<br/>(casamento por chave)"]
-        CONV["Conversao ->  modelo Conta Azul<br/>(regras por forma de pagamento)"]
+        CONV["Conversao -> modelo de importacao<br/>(regras por forma de pagamento)"]
     end
 
     subgraph Saidas["Saidas (.xlsx)"]
-        OUT["6 planilhas Conta Azul<br/>(1 por forma de pagamento)"]
+        OUT["Planilhas por forma de pagamento"]
         DIV["Planilha de divergencias"]
     end
 
-    CA["Conta Azul (ERP)"]
+    ERP["Sistema financeiro (ERP)"]
 
     PDV --> LEIT
     ADQ --> LEIT
@@ -50,7 +51,7 @@ flowchart TD
     LEIT --> NORM --> CONC --> CONV
     CONV --> OUT
     CONC --> DIV
-    OUT -->|"importacao manual (hoje)<br/>API / agente (roadmap)"| CA
+    OUT -->|"importacao manual (hoje)<br/>API / agente (roadmap)"| ERP
 ```
 
 ## Fluxo de dados por forma de pagamento
@@ -59,12 +60,12 @@ Cada forma de pagamento tem uma origem e um destino bem definidos:
 
 ```mermaid
 flowchart LR
-    ADQ["Adquirente"] --> DEB["conta_azul_debito"]
-    ADQ --> CRE["conta_azul_credito"]
-    PDV["PDV / Caixa"] --> PIX["conta_azul_pix"]
-    PDV --> DIN["conta_azul_dinheiro"]
-    PDV --> HAN["conta_azul_hanzo"]
-    MKT["Marketplace"] --> IFD["conta_azul_ifood"]
+    ADQ["Adquirente"] --> DEB["planilha debito"]
+    ADQ --> CRE["planilha credito"]
+    PDV["PDV / Caixa"] --> PIX["planilha pix"]
+    PDV --> DIN["planilha dinheiro"]
+    PDV --> HAN["planilha parceiro"]
+    MKT["Marketplace"] --> IFD["planilha marketplace"]
     PDV -. "fornece NFC-e<br/>(casa por valor)" .-> IFD
     MKT -. "pedidos sem<br/>NFC-e no PDV" .-> DIVV["DIVERGENCIAS"]
 ```
@@ -74,29 +75,29 @@ flowchart LR
 ```mermaid
 sequenceDiagram
     participant U as Operador
-    participant S as gerar_contaazul.py
+    participant S as gerar_planilhas.py
     participant F as Pasta do mes (.xlsx)
-    participant O as SAIDA_ContaAzul/
+    participant O as SAIDA_Financeiro/
 
-    U->>S: python gerar_contaazul.py <pasta> <sufixo>
+    U->>S: python gerar_planilhas.py <pasta> <sufixo>
     S->>F: localiza os 3 relatorios (por padrao de nome)
     S->>F: le adquirente (header dinamico) + PDV + marketplace
     Note over S: filtra vendas efetivadas<br/>(Aprovada / Pago / Concluido, valor > 0)
     S->>S: normaliza e aplica regras por forma
     S->>S: concilia marketplace x PDV por valor
-    S->>O: escreve 6 planilhas + divergencias
-    S-->>U: relatorio de execucao (linhas e totais)
+    S->>O: escreve as planilhas + divergencias
+    S-->>U: fim (planilhas prontas para importacao)
 ```
 
 ## Componentes
 
 | Componente | Responsabilidade |
 |---|---|
-| **Leitura / detecção de layout** | Localiza os 3 arquivos por padrão de nome; acha a linha de cabeçalho do adquirente dinamicamente (o export tem cabeçalho institucional variável); casa colunas do marketplace por prefixo. |
+| **Leitura / detecção de layout** | Localiza os 3 arquivos por padrão de nome; acha a linha de cabeçalho do adquirente dinamicamente (o export tem cabeçalho institucional variável); casa colunas por nome/prefixo (robusto a acento). |
 | **Filtro de efetivação** | Descarta vendas não concluídas (`Cancelado`, status ≠ `Aprovada`/`Concluído`) e linhas de valor ≤ 0. |
 | **Normalização** | Converte cada linha das fontes para um registro único (data, valor, taxa, NSU, cupom/NFC-e, forma). |
 | **Conciliação** | Casa marketplace × PDV **por valor** (o nº de pedido difere entre sistemas). Marca divergências. |
-| **Conversão Conta Azul** | Aplica as regras de data, categoria e descrição por forma de pagamento e escreve no layout de importação (abas `Orientações` + `Dados`). |
+| **Conversão para importação** | Aplica as regras de data, categoria e descrição por forma de pagamento e escreve no layout de importação (abas `Orientações` + `Dados`). |
 
 ## Decisões de arquitetura
 
@@ -119,8 +120,8 @@ sequenceDiagram
 |---|---|
 | Layout dos exports muda (colunas renomeadas/reordenadas) | Detecção dinâmica de header e casamento de coluna por nome/prefixo. |
 | Uma venda com o mesmo valor no mesmo dia (ambiguidade no casamento) | Casamento em fila (FIFO) por (data, valor); excedentes viram divergência para conferência manual. |
-| API do Conta Azul não expõe "baixa"/conciliação | Escrita robusta via API para criar/editar; a baixa final fica para o agente de navegador (roadmap). |
+| API do sistema financeiro não expõe "baixa"/conciliação | Escrita robusta via API para criar/editar; a baixa final fica para o agente de navegador (roadmap). |
 | Emissão fiscal no marketplace pode ser do próprio marketplace | NFC-e sempre obtida do PDV, não do marketplace. |
 
-Ver também [MODELO_CONTA_AZUL.md](MODELO_CONTA_AZUL.md), [CONCILIACAO.md](CONCILIACAO.md)
+Ver também [MODELO_IMPORTACAO.md](MODELO_IMPORTACAO.md), [CONCILIACAO.md](CONCILIACAO.md)
 e [APIS.md](APIS.md).

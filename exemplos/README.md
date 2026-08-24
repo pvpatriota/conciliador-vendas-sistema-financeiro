@@ -32,20 +32,14 @@ antes); o pipeline localiza a linha que contém `Data da venda`. Colunas usadas:
 
 ## Saída
 
-Uma subpasta `SAIDA_ContaAzul/` é criada dentro da pasta do mês, com:
-
-```
-conta_azul_debito_<sufixo>.xlsx
-conta_azul_credito_<sufixo>.xlsx
-conta_azul_pix_<sufixo>.xlsx
-conta_azul_dinheiro_<sufixo>.xlsx
-conta_azul_hanzo_<sufixo>.xlsx
-conta_azul_ifood_<sufixo>.xlsx
-DIVERGENCIAS_ifood_sem_nfce_<sufixo>.xlsx
-```
+<!--
+São geradas planilhas prontas para serem importadas no sistema financeiro
+(uma por forma de pagamento) e uma planilha de divergências para conferência.
+Ficam em uma subpasta criada dentro da pasta do mês.
+-->
 
 ## Execução
 
 ```bash
-python ../src/gerar_contaazul.py ./2026-05 mai2026
+python ../src/gerar_planilhas.py ./2026-05 mai2026
 ```

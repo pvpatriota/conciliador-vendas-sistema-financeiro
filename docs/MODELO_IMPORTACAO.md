@@ -1,7 +1,7 @@
-# Modelo de importação Conta Azul
+# Modelo de importação (sistema financeiro)
 
-O Conta Azul importa lançamentos financeiros a partir de uma planilha com duas
-abas: **`Orientações`** (texto fixo de instruções) e **`Dados`** (os lançamentos).
+O sistema financeiro importa lançamentos a partir de uma planilha com duas abas:
+**`Orientações`** (texto fixo de instruções) e **`Dados`** (os lançamentos).
 
 ## Colunas da aba `Dados`
 
@@ -20,7 +20,7 @@ abas: **`Orientações`** (texto fixo de instruções) e **`Dados`** (os lançam
 
 > **Regra global:** a *Data de Pagamento* fica **sempre em branco**, mesmo quando a
 > data já passou e o valor já foi recebido. Esse campo só é preenchido quando a
-> conciliação é efetivada no ERP.
+> conciliação é efetivada no sistema financeiro.
 
 ## Regras por forma de pagamento
 
@@ -43,10 +43,10 @@ itens; PIX/Dinheiro/Hanzo → valor do pagamento no PDV.
 - **Vencimento pelo adquirente:** o adquirente informa a *data prevista de
   pagamento* de cada transação; usá-la evita recalcular `D+1`/`D+31` e trata
   automaticamente fins de semana e feriados.
-- **`PIX - PIX`** e **`Hanzo Prod`**: rótulos padronizados pedidos pela operação
-  financeira para facilitar a leitura no ERP.
+- **Rótulos padronizados** (`PIX - PIX`, `Hanzo Prod`): pedidos pela operação
+  financeira para facilitar a leitura no sistema.
 - **`Cupom` → `NFCe`** na descrição: é o mesmo número (o cupom fiscal é a NFC-e),
-  mas o texto `NFCe` deixa mais claro para quem confere no sistema.
+  mas o texto `NFCe` deixa mais claro para quem confere.
 - **NFC-e sempre do PDV:** no delivery, a nota pode ser emitida pelo marketplace;
   a NFC-e confiável vem do PDV.
 

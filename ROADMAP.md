@@ -6,7 +6,7 @@
 - [x] Filtro de vendas efetivadas
 - [x] Normalização para modelo único
 - [x] Conciliação marketplace × PDV por valor
-- [x] Conversão para o modelo de importação do Conta Azul (6 formas)
+- [x] Conversão para o modelo de importação do sistema financeiro (6 formas)
 - [x] Planilha de divergências
 - [x] Validação em 3 meses reais + verificação de integridade
 
@@ -20,7 +20,7 @@
 Objetivo: os dados financeiros permanecem no ambiente do cliente; nenhuma porta de
 entrada exposta.
 
-## Fase 3 — Integração com a API do Conta Azul
+## Fase 3 — Integração com a API do sistema financeiro
 
 - [ ] Autenticação OAuth 2.0
 - [ ] Criação de lançamentos (contas a receber) via API

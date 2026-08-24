@@ -1,6 +1,6 @@
 # Dados reais do cliente — NUNCA versionar
 dados/
-**/SAIDA_ContaAzul/
+**/SAIDA_Financeiro/
 *.xlsx
 *.xls
 *.csv

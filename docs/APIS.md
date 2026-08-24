@@ -3,7 +3,7 @@
 Levantamento de viabilidade das APIs envolvidas, feito na fase de concepção. Hoje o
 pipeline trabalha por **arquivos** (exports mensais); as APIs são o caminho da
 evolução para tempo (quase) real. Os detalhes abaixo são de natureza técnica e
-pública; nenhum dado ou credencial do cliente está aqui.
+genérica; nenhum dado ou credencial está aqui.
 
 ## Adquirente de cartões
 
@@ -28,21 +28,21 @@ pública; nenhum dado ou credencial do cliente está aqui.
 - Fonte-mãe do processo. Integração via **exportação de relatórios** (Excel).
   API sob demanda/contato comercial — não é o caminho atual.
 
-## Conta Azul (ERP financeiro)
+## Sistema financeiro (ERP)
 
-API REST + OAuth 2.0. Base pública `https://api-v2.contaazul.com`. Sem *webhooks*
-(usa-se *polling*). Módulo Financeiro (v1) — recursos principais:
+API REST + OAuth 2.0, sem *webhooks* (usa-se *polling*). Módulo financeiro —
+recursos relevantes para este projeto:
 
 | Recurso | Método | Uso |
 |---|---|---|
 | Contas a receber / a pagar | `POST` | Criar lançamentos |
-| Receitas / despesas | `GET .../buscar` | Consultar por filtro |
+| Receitas / despesas | `GET` | Consultar por filtro |
 | Parcela | `GET`, `PATCH` | Ler e **editar** (vencimento, data prevista, NSU, método, conta, composição de valor: bruto, líquido, taxa, desconto, juros, multa) |
 | Contas financeiras / saldo | `GET` | Consultar saldos |
 | Eventos alterados no período | `GET` | *Polling* (substituto de webhook) |
 
 **Limitação relevante:** não há endpoint para criar a **baixa/conciliação** — os
-campos `conciliado`/`baixas` são apenas leitura. Ou seja, a API cobre criar e editar
+campos de conciliação são apenas leitura. Ou seja, a API cobre criar e editar
 lançamentos e ajustar datas/taxas com robustez, mas a *baixa efetiva* provavelmente
 exige a interface do sistema.
 
@@ -50,8 +50,8 @@ exige a interface do sistema.
 
 ```mermaid
 flowchart LR
-    MW["Middleware"] -->|"API: criar/editar<br/>lancamentos, datas, taxas"| CA["Conta Azul"]
-    MW -.->|"Agente de navegador:<br/>baixa/conciliacao final"| CA
+    MW["Middleware"] -->|"API: criar/editar<br/>lancamentos, datas, taxas"| ERP["Sistema financeiro"]
+    MW -.->|"Agente de navegador:<br/>baixa/conciliacao final"| ERP
 ```
 
 A parte robusta (ler, criar, ajustar) vai por **API**; apenas o clique final de

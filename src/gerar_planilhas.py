@@ -1,28 +1,29 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Conciliador de Vendas -> Modelo de Importacao Conta Azul
-=========================================================
+Conciliador de Vendas -> Planilhas para o Sistema Financeiro
+============================================================
 
 Le os relatorios mensais de tres fontes (adquirente de cartoes, marketplace de
 delivery e sistema de PDV/caixa) e gera as planilhas no layout de importacao do
-Conta Azul, uma por forma de pagamento, mais uma planilha de divergencias.
+sistema financeiro (ERP), uma por forma de pagamento, mais uma planilha de
+divergencias.
 
 O sistema de PDV e a fonte-mae (concentra todas as vendas). As outras fontes
-servem de conferencia. Ver docs/ARQUITETURA.md e docs/MODELO_CONTA_AZUL.md.
+servem de conferencia. Ver docs/ARQUITETURA.md e docs/MODELO_IMPORTACAO.md.
 
 Uso:
-    python gerar_contaazul.py <pasta_do_mes> <sufixo>
+    python gerar_planilhas.py <pasta_do_mes> <sufixo>
 
 Exemplo:
-    python gerar_contaazul.py ./dados/2026-05 mai2026
+    python gerar_planilhas.py ./dados/2026-05 mai2026
 
 A <pasta_do_mes> deve conter os 3 relatorios (nomes reconhecidos por padrao):
     - Adquirente (cartoes):   Vendas_*cielo*detalhe*.xlsx
     - Marketplace (delivery): relatorios.ifood*.xlsx
     - PDV / caixa:            Relatorio_Geral_Vendas*.xlsx
 
-Saida: subpasta SAIDA_ContaAzul/ com os arquivos conta_azul_<forma>_<sufixo>.xlsx
+Saida: subpasta SAIDA_Financeiro/ com os arquivos financeiro_<forma>_<sufixo>.xlsx
 e DIVERGENCIAS_ifood_sem_nfce_<sufixo>.xlsx
 
 Dependencias: openpyxl  (pip install openpyxl)
@@ -41,7 +42,7 @@ from openpyxl.utils import get_column_letter
 warnings.filterwarnings('ignore')
 
 # --------------------------------------------------------------------------- #
-# Layout do modelo de importacao do Conta Azul
+# Layout do modelo de importacao do sistema financeiro
 # --------------------------------------------------------------------------- #
 ORIENTACOES = [
     'Orientacoes de preenchimento da planilha:',
@@ -139,7 +140,7 @@ def load_rows(path, must_have=None):
 
 
 def write_sheet(outdir, filename, rows):
-    """Gera um arquivo no modelo Conta Azul (abas Orientacoes + Dados)."""
+    """Gera um arquivo no modelo de importacao (abas Orientacoes + Dados)."""
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.title = 'Orientacoes'
@@ -157,7 +158,7 @@ def write_sheet(outdir, filename, rows):
 # Pipeline
 # --------------------------------------------------------------------------- #
 def gerar(folder, suf):
-    outdir = os.path.join(folder, 'SAIDA_ContaAzul')
+    outdir = os.path.join(folder, 'SAIDA_Financeiro')
     os.makedirs(outdir, exist_ok=True)
 
     # ===== Adquirente de cartoes -> Debito e Credito ======================== #
@@ -269,14 +270,12 @@ def gerar(folder, suf):
                                   to_number(r[m_liquido]), str(r[m_forma])])
 
     # ===== Escreve as saidas =============================================== #
-    resultado = {
-        'debito':   write_sheet(outdir, 'conta_azul_debito_%s.xlsx' % suf, debito),
-        'credito':  write_sheet(outdir, 'conta_azul_credito_%s.xlsx' % suf, credito),
-        'pix':      write_sheet(outdir, 'conta_azul_pix_%s.xlsx' % suf, pix),
-        'hanzo':    write_sheet(outdir, 'conta_azul_hanzo_%s.xlsx' % suf, hanzo),
-        'dinheiro': write_sheet(outdir, 'conta_azul_dinheiro_%s.xlsx' % suf, dinheiro),
-        'ifood':    write_sheet(outdir, 'conta_azul_ifood_%s.xlsx' % suf, ifood),
-    }
+    write_sheet(outdir, 'financeiro_debito_%s.xlsx' % suf, debito)
+    write_sheet(outdir, 'financeiro_credito_%s.xlsx' % suf, credito)
+    write_sheet(outdir, 'financeiro_pix_%s.xlsx' % suf, pix)
+    write_sheet(outdir, 'financeiro_hanzo_%s.xlsx' % suf, hanzo)
+    write_sheet(outdir, 'financeiro_dinheiro_%s.xlsx' % suf, dinheiro)
+    write_sheet(outdir, 'financeiro_ifood_%s.xlsx' % suf, ifood)
 
     # Planilha de divergencias (pedidos do marketplace sem NFC-e no PDV)
     wb = openpyxl.Workbook()
@@ -291,15 +290,8 @@ def gerar(folder, suf):
         ws.column_dimensions[get_column_letter(i)].width = max(12, len(name) + 2)
     wb.save(os.path.join(outdir, 'DIVERGENCIAS_ifood_sem_nfce_%s.xlsx' % suf))
 
-    # ===== Relatorio de execucao =========================================== #
-    total = lambda linhas: round(sum(x[3] for x in linhas if x[3]), 2)
-    dados = {'debito': debito, 'credito': credito, 'pix': pix,
-             'hanzo': hanzo, 'dinheiro': dinheiro, 'ifood': ifood}
-    print('Saida em:', outdir)
-    for forma in ['debito', 'credito', 'pix', 'hanzo', 'dinheiro', 'ifood']:
-        print('  %-9s %4d linhas  R$ %11.2f'
-              % (forma, resultado[forma], total(dados[forma])))
-    print('  divergencias iFood sem NFCe: %d' % len(divergencias))
+    # Planilhas geradas, prontas para importacao no sistema financeiro.
+    print('Planilhas geradas em:', outdir)
 
 
 def main():
