@@ -44,20 +44,24 @@ warnings.filterwarnings('ignore')
 # --------------------------------------------------------------------------- #
 # Layout do modelo de importacao do sistema financeiro
 # --------------------------------------------------------------------------- #
+# Textos e cabecalhos EXATOS do modelo de importacao (com acentos) — o sistema
+# financeiro casa as colunas pelo nome, entao precisam ser identicos.
 ORIENTACOES = [
-    'Orientacoes de preenchimento da planilha:',
-    '* A data de pagamento precisa ser igual ou inferior a data de hoje; caso '
-    'seja superior, o lancamento sera importado com o status "Em Aberto".',
-    '* Nao utilizar caracteres especiais.',
-    '* Cole as informacoes usando "Colar Especial > Colar Valores" para nao '
-    'perder a formatacao padrao das celulas.',
-    '* Verifique se nao ficaram espacos entre os dados informados.',
-    '* As celulas nao podem conter formulas.',
+    'Orientações de preenchimento da planilha:',
+    '* A data de pagamento precisa ser igual ou inferior a data de hoje, caso a '
+    'mesma seja superior ao dia de hoje o lançamento será importado com o status: '
+    '"Em Aberto".',
+    '* Não utilizar caracteres especiais;',
+    '* Cole as informações na planilha utilizando a função "Colar Especial > Colar '
+    'Valores" para não perder a formatação padrão das células;',
+    '* Verificar se não ficou espaços entre os dados informados, principalmente '
+    'quando as informações são coladas;',
+    '* As células não podem conter fórmulas;',
 ]
 COLUNAS = [
-    'Data de Competencia', 'Data de Vencimento', 'Data de Pagamento', 'Valor',
-    'Categoria', 'Descricao', 'Cliente/Fornecedor', 'CNPJ/CPF Cliente/Fornecedor',
-    'Centro de Custo', 'Observacoes',
+    'Data de Competência', 'Data de Vencimento', 'Data de Pagamento', 'Valor',
+    'Categoria', 'Descrição', 'Cliente/Fornecedor', 'CNPJ/CPF Cliente/Fornecedor',
+    'Centro de Custo', 'Observações',
 ]
 
 
@@ -143,7 +147,7 @@ def write_sheet(outdir, filename, rows):
     """Gera um arquivo no modelo de importacao (abas Orientacoes + Dados)."""
     wb = openpyxl.Workbook()
     ws = wb.active
-    ws.title = 'Orientacoes'
+    ws.title = 'Orientações'
     for line in ORIENTACOES:
         ws.append([line])
     dados = wb.create_sheet('Dados')
