@@ -167,4 +167,11 @@ def baixar(token, arquivo):
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', '5000'))
-    app.run(host='0.0.0.0', port=port, debug=False)
+    # Auto-reload em desenvolvimento: reinicia sozinho quando o codigo/templates
+    # mudam (inclusive apos um `git pull`). Desative com RELOAD=0.
+    reload = os.environ.get('RELOAD', '1') != '0'
+    app.config['TEMPLATES_AUTO_RELOAD'] = reload
+    print('Conciliador SEVENT  ->  http://localhost:%d   (auto-reload: %s)'
+          % (port, 'ligado' if reload else 'desligado'))
+    # use_reloader recarrega o codigo; sem debugger exposto (dados financeiros).
+    app.run(host='0.0.0.0', port=port, use_reloader=reload)
