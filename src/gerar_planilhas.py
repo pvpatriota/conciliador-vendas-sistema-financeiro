@@ -38,6 +38,7 @@ from collections import defaultdict, deque
 
 import openpyxl
 from openpyxl.utils import get_column_letter
+from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 
 warnings.filterwarnings('ignore')
 
@@ -63,6 +64,13 @@ COLUNAS = [
     'Categoria', 'Descrição', 'Cliente/Fornecedor', 'CNPJ/CPF Cliente/Fornecedor',
     'Centro de Custo', 'Observações',
 ]
+# Formatacao do cabecalho identica ao modelo original (celulas azuis).
+CAB_FILL = PatternFill('solid', fgColor='FF0066CC')
+CAB_FONT = Font(name='Calibri', size=11, bold=True, color='FFFFFFFF')
+CAB_ALIGN = Alignment(horizontal='center', vertical='center')
+CAB_BORDA = Border(bottom=Side(style='thin'))
+LARGURAS = {'A': 13.8, 'B': 16.0, 'C': 11.0, 'D': 12.4, 'E': 30.8, 'F': 30.8,
+            'G': 30.8, 'H': 25.2, 'I': 15.3, 'J': 24.8}
 
 
 # --------------------------------------------------------------------------- #
@@ -154,6 +162,13 @@ def write_sheet(outdir, filename, rows):
     dados.append(COLUNAS)
     for r in rows:
         dados.append(r + [''] * (len(COLUNAS) - len(r)))
+    # Cabecalho azul (identico ao modelo de importacao)
+    for i in range(1, len(COLUNAS) + 1):
+        c = dados.cell(row=1, column=i)
+        c.fill, c.font, c.alignment, c.border = CAB_FILL, CAB_FONT, CAB_ALIGN, CAB_BORDA
+    for col, largura in LARGURAS.items():
+        dados.column_dimensions[col].width = largura
+    dados.freeze_panes = 'A2'
     wb.save(os.path.join(outdir, filename))
     return len(rows)
 
