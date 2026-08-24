@@ -46,6 +46,29 @@ política de retenção — a definir no planejamento desta fase.
 - [ ] Ajuste de datas/taxas via `PATCH` de parcela
 - [ ] Sincronização por *polling* (a API não tem webhook)
 
+### Fluxo "conferir → confirmar → importar" (integra Fase 2b + Fase 3)
+
+Ideia: unir a interface web com a API para eliminar a importação manual de planilha.
+
+1. Usuário **anexa** os relatórios do mês na interface web.
+2. Sistema **processa** e **devolve** as planilhas prontas para o usuário **conferir**.
+3. Se estiver tudo certo, o usuário **confirma**.
+4. Sistema **cria os lançamentos direto no sistema financeiro via API** — sem
+   importação manual.
+
+**Viabilidade (com base na pesquisa da API):**
+
+- ✅ **Criar lançamentos** (contas a receber) é suportado via `POST` + OAuth 2.0 —
+  substitui a importação manual da planilha.
+- ⚠️ "Importar" = **criar os lançamentos**; a **baixa/conciliação** (marcar como
+  recebido) **não** tem endpoint — continua na Fase 4 (agente).
+- ⚠️ A tratar: autorização OAuth por empresa (uma vez), limite ~50 req/min
+  (throttling/lotes) e **idempotência** (não duplicar se o usuário confirmar 2x —
+  controlar o que já foi enviado).
+
+Ou seja: o botão "Confirmar e importar" cria os lançamentos no ERP; a conciliação
+final fica para o agente.
+
 ## Fase 4 — Agente de conciliação
 
 - [ ] Agente de navegador (headless) para a **baixa/conciliação** que a API não
