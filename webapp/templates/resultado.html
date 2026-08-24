@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8">
+<title>Conferir — Conciliador SEVENT</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="brandmark" style="font-size:1.1rem">
+      <svg width="28" height="28" viewBox="0 0 64 64" aria-label="SEVENT"><rect width="64" height="64" rx="13" fill="#101216"/><g transform="rotate(45 32 32)"><rect x="16" y="16" width="32" height="32" rx="4" fill="none" stroke="#f5b301" stroke-width="5.5"/><rect x="28.5" y="28.5" width="7" height="7" rx="1.5" fill="#f5b301"/></g></svg>
+      Conciliador <span class="sub">de vendas</span>
+    </div>
+    <div class="stepper"><span class="done">1 · Enviar</span><span class="done">2 · Processar</span><span class="on">3 · Conferir</span><span>4 · Importar</span></div>
+  </div>
+
+  <div class="hero">
+    <span class="eyebrow">Referência {{ sufixo }}</span>
+    <h1>Planilhas prontas para conferir</h1>
+    <p>Uma planilha por forma de pagamento, no modelo de importação. Baixe e confira antes de importar.</p>
+  </div>
+
+  <div class="panel">
+    <div class="summary">
+      <div class="tots">
+        <div><span class="k">Lançamentos</span><span class="v">{{ resumo.linhas_total | milhar }}</span></div>
+        <div><span class="k">Total do mês</span><span class="v">{{ resumo.valor_total | brl }}</span></div>
+        <div><span class="k">Divergências</span><span class="v" style="color:var(--warn)">{{ resumo.divergencias.linhas }}</span></div>
+      </div>
+      <a class="btn ghost" href="{{ url_for('baixar', token=token, arquivo='planilhas.zip') }}">⭳ Baixar tudo (.zip)</a>
+    </div>
+
+    <div class="cards">
+      {% for f in resumo.formas %}
+      <div class="card">
+        <div class="top"><span class="nm"><span class="dot" style="background:{{ cores[f.forma] }}"></span>{{ f.forma }}</span><span class="pill">{{ f.linhas }}</span></div>
+        <div class="val">{{ f.total | brl }}</div>
+        <a class="dl" href="{{ url_for('baixar', token=token, arquivo=f.arquivo) }}">⭳ Baixar planilha</a>
+      </div>
+      {% endfor %}
+    </div>
+
+    {% if resumo.divergencias.linhas %}
+    <div class="cards" style="grid-template-columns:1fr; margin-top:12px">
+      <div class="card warn">
+        <div class="top"><span class="nm">⚠ Divergências — iFood sem NFC-e no PDV</span><span class="pill" style="background:var(--surface);color:var(--warn)">{{ resumo.divergencias.linhas }} pedidos</span></div>
+        <div class="sub" style="margin-top:8px">Pedidos do marketplace que não casaram com o PDV por valor. Confira antes de importar.</div>
+        <a class="dl" href="{{ url_for('baixar', token=token, arquivo=resumo.divergencias.arquivo) }}">⭳ Baixar planilha de conferência</a>
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="confirm">
+      <div class="txt"><h3>Está tudo certo?</h3>
+        <p>Se conferiu as planilhas, o próximo passo cria os lançamentos direto no sistema financeiro — sem importação manual.</p></div>
+      <div class="acts">
+        <span class="badge-soon">Importação · em breve (Fase 3)</span>
+        <button class="btn primary" disabled>Confirmar e importar →</button>
+      </div>
+    </div>
+    <div class="note"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+      <span>A importação direta via API criará os lançamentos no sistema financeiro. Por enquanto, baixe as planilhas e importe no sistema.</span></div>
+
+    <div style="margin-top:18px"><a href="{{ url_for('index') }}" style="font-size:.9rem">← Enviar outro mês</a></div>
+  </div>
+
+  <div class="foot"><div class="brandmark" style="justify-content:center">
+    <svg width="16" height="16" viewBox="0 0 64 64"><g transform="rotate(45 32 32)"><rect x="16" y="16" width="32" height="32" rx="4" fill="none" stroke="#f5b301" stroke-width="6"/><rect x="28.5" y="28.5" width="7" height="7" rx="1.5" fill="#f5b301"/></g></svg>
+    SEVENT · Conciliador de Vendas</div></div>
+</div>
+</body>
+</html>

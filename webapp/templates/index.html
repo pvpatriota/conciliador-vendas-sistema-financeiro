@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8">
+<title>Conciliador SEVENT</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="brandmark" style="font-size:1.1rem">
+      <svg width="28" height="28" viewBox="0 0 64 64" aria-label="SEVENT"><rect width="64" height="64" rx="13" fill="#101216"/><g transform="rotate(45 32 32)"><rect x="16" y="16" width="32" height="32" rx="4" fill="none" stroke="#f5b301" stroke-width="5.5"/><rect x="28.5" y="28.5" width="7" height="7" rx="1.5" fill="#f5b301"/></g></svg>
+      Conciliador <span class="sub">de vendas</span>
+    </div>
+    <div class="stepper"><span class="on">1 · Enviar</span><span>2 · Processar</span><span>3 · Conferir</span><span>4 · Importar</span></div>
+  </div>
+
+  <div class="hero">
+    <span class="eyebrow">SEVENT · Engenharia e Tecnologia</span>
+    <h1>Anexe os relatórios. <b>Receba as planilhas prontas.</b></h1>
+    <p>Solte os três relatórios do mês no campo abaixo — Adquirente, Marketplace e PDV, em qualquer
+       ordem. O sistema reconhece cada um, concilia e gera as planilhas no modelo de importação.</p>
+  </div>
+
+  {% if erro %}
+  <div class="alert"><h3>Não consegui reconhecer todos os relatórios</h3><p>{{ erro }}</p></div>
+  {% endif %}
+
+  <form class="panel" method="post" action="{{ url_for('processar') }}" enctype="multipart/form-data" id="form">
+    <label class="dropzone" id="dz" for="file">
+      <div class="dz-ic"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 16V4m0 0 4 4m-4-4-4 4"/><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg></div>
+      <div class="dz-title">Arraste os 3 relatórios do mês aqui</div>
+      <div class="dz-sub">Adquirente (cartões), Marketplace (delivery) e PDV — <span class="link">ou clique para selecionar</span></div>
+      <input type="file" id="file" name="relatorios" accept=".xlsx" multiple hidden>
+      <div class="dz-files" id="list"></div>
+    </label>
+    <div class="formrow">
+      <div class="field">
+        <label for="sufixo">Mês de referência</label>
+        <input class="input" type="text" id="sufixo" name="sufixo" placeholder="ex.: jun2026" value="{{ sufixo or '' }}" required>
+      </div>
+      <button class="btn primary" type="submit" id="go" disabled>Processar relatórios →</button>
+    </div>
+  </form>
+
+  <div class="foot"><div class="brandmark" style="justify-content:center">
+    <svg width="16" height="16" viewBox="0 0 64 64"><g transform="rotate(45 32 32)"><rect x="16" y="16" width="32" height="32" rx="4" fill="none" stroke="#f5b301" stroke-width="6"/><rect x="28.5" y="28.5" width="7" height="7" rx="1.5" fill="#f5b301"/></g></svg>
+    SEVENT · Conciliador de Vendas</div></div>
+</div>
+
+<script>
+  const dz = document.getElementById('dz'), input = document.getElementById('file'),
+        list = document.getElementById('list'), go = document.getElementById('go');
+
+  function fmtSize(b){ return b > 1048576 ? (b/1048576).toFixed(1)+' MB' : Math.round(b/1024)+' KB'; }
+
+  function render(){
+    list.innerHTML = '';
+    const files = Array.from(input.files || []);
+    files.forEach(f => {
+      const row = document.createElement('div');
+      row.className = 'file';
+      row.innerHTML = '<span class="fi">📄</span><div class="meta"><div class="fn"></div>'
+        + '<div class="fs">'+fmtSize(f.size)+'</div></div>'
+        + '<span class="check"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg></span>';
+      row.querySelector('.fn').textContent = f.name;
+      list.appendChild(row);
+    });
+    go.disabled = files.length === 0;
+  }
+
+  input.addEventListener('change', render);
+
+  ['dragenter','dragover'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add('drag'); }));
+  ['dragleave','drop'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.remove('drag'); }));
+  dz.addEventListener('drop', e => { input.files = e.dataTransfer.files; render(); });
+
+  document.getElementById('form').addEventListener('submit', () => {
+    go.disabled = true; go.textContent = 'Processando…';
+  });
+</script>
+</body>
+</html>

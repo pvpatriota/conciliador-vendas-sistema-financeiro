@@ -270,14 +270,23 @@ def gerar(folder, suf):
                                   to_number(r[m_liquido]), str(r[m_forma])])
 
     # ===== Escreve as saidas =============================================== #
-    write_sheet(outdir, 'financeiro_debito_%s.xlsx' % suf, debito)
-    write_sheet(outdir, 'financeiro_credito_%s.xlsx' % suf, credito)
-    write_sheet(outdir, 'financeiro_pix_%s.xlsx' % suf, pix)
-    write_sheet(outdir, 'financeiro_hanzo_%s.xlsx' % suf, hanzo)
-    write_sheet(outdir, 'financeiro_dinheiro_%s.xlsx' % suf, dinheiro)
-    write_sheet(outdir, 'financeiro_ifood_%s.xlsx' % suf, ifood)
+    formas = [
+        ('Debito',   'financeiro_debito_%s.xlsx' % suf,   debito),
+        ('Credito',  'financeiro_credito_%s.xlsx' % suf,  credito),
+        ('PIX',      'financeiro_pix_%s.xlsx' % suf,      pix),
+        ('Dinheiro', 'financeiro_dinheiro_%s.xlsx' % suf, dinheiro),
+        ('Hanzo',    'financeiro_hanzo_%s.xlsx' % suf,    hanzo),
+        ('iFood',    'financeiro_ifood_%s.xlsx' % suf,    ifood),
+    ]
+    resumo_formas = []
+    for nome, arquivo, linhas in formas:
+        write_sheet(outdir, arquivo, linhas)
+        total = round(sum(x[3] for x in linhas if x[3]), 2)
+        resumo_formas.append({'forma': nome, 'arquivo': arquivo,
+                              'linhas': len(linhas), 'total': total})
 
     # Planilha de divergencias (pedidos do marketplace sem NFC-e no PDV)
+    div_arquivo = 'DIVERGENCIAS_ifood_sem_nfce_%s.xlsx' % suf
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.title = 'iFood sem NFCe no PDV'
@@ -288,17 +297,24 @@ def gerar(folder, suf):
         ws.append(d)
     for i, name in enumerate(cols, 1):
         ws.column_dimensions[get_column_letter(i)].width = max(12, len(name) + 2)
-    wb.save(os.path.join(outdir, 'DIVERGENCIAS_ifood_sem_nfce_%s.xlsx' % suf))
+    wb.save(os.path.join(outdir, div_arquivo))
 
-    # Planilhas geradas, prontas para importacao no sistema financeiro.
-    print('Planilhas geradas em:', outdir)
+    # Resumo da execucao (usado pela interface web e pelo CLI).
+    return {
+        'saida': outdir,
+        'formas': resumo_formas,
+        'divergencias': {'arquivo': div_arquivo, 'linhas': len(divergencias)},
+        'linhas_total': sum(f['linhas'] for f in resumo_formas),
+        'valor_total': round(sum(f['total'] for f in resumo_formas), 2),
+    }
 
 
 def main():
     if len(sys.argv) != 3:
         print(__doc__)
         sys.exit(1)
-    gerar(sys.argv[1], sys.argv[2])
+    resultado = gerar(sys.argv[1], sys.argv[2])
+    print('Planilhas geradas em:', resultado['saida'])
 
 
 if __name__ == '__main__':

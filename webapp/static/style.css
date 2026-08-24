@@ -1,0 +1,103 @@
+/* SEVENT — tema escuro premium, acento dourado (#f5b301). */
+:root{
+  --bg:#0b0c0e; --bg-2:#101216; --surface:#15171c; --surface-2:#1c1f26; --surface-3:#232733;
+  --ink:#f4f5f7; --silver:#cdd3db; --muted:#9aa2ae;
+  --line:rgba(255,255,255,.09); --line-strong:rgba(255,255,255,.17);
+  --gold:#f5b301; --gold-2:#ffce3a; --gold-soft:rgba(245,179,1,.13); --gold-line:rgba(245,179,1,.4);
+  --on-gold:#0b0c0e;
+  --warn:#e8815a; --warn-soft:rgba(232,129,90,.12); --warn-line:rgba(232,129,90,.38);
+  --ok:#41cf93; --ok-soft:rgba(65,207,147,.12);
+  --shadow:0 18px 50px rgba(0,0,0,.5); --shadow-gold:0 12px 40px rgba(245,179,1,.16);
+  --radius:16px;
+}
+*{box-sizing:border-box}
+body{margin:0; background:var(--bg); color:var(--ink);
+  font-family:"Inter",system-ui,-apple-system,sans-serif; line-height:1.5; -webkit-font-smoothing:antialiased;
+  background-image:radial-gradient(1200px 500px at 80% -10%, rgba(245,179,1,.06), transparent 60%); min-height:100vh}
+.wrap{max-width:1000px; margin:0 auto; padding:34px 22px 70px}
+h1,h2,h3{font-family:"Rajdhani","Inter",sans-serif; text-wrap:balance; margin:0; letter-spacing:.01em}
+.mono{font-family:"Space Mono",ui-monospace,monospace; font-variant-numeric:tabular-nums}
+a{color:var(--gold)}
+
+.brandmark{display:inline-flex; align-items:center; gap:.6rem; font-family:"Rajdhani"; font-weight:700; letter-spacing:.06em}
+.brandmark .sub{font-family:"Inter"; font-weight:500; letter-spacing:0; color:var(--muted); font-size:.72rem; padding-left:.55rem; border-left:1px solid var(--line-strong)}
+.eyebrow{font-size:.72rem; letter-spacing:.2em; text-transform:uppercase; color:var(--gold); font-weight:600}
+
+.topbar{display:flex; align-items:center; justify-content:space-between; margin-bottom:26px; flex-wrap:wrap; gap:10px}
+.stepper{display:flex; gap:6px; flex-wrap:wrap}
+.stepper span{font-size:.72rem; color:var(--muted); padding:3px 10px; border-radius:999px; background:var(--surface-2); border:1px solid var(--line); white-space:nowrap}
+.stepper span.on{color:var(--on-gold); background:var(--gold); border-color:var(--gold); font-weight:600}
+.stepper span.done{color:var(--gold); border-color:var(--gold-line); background:var(--gold-soft)}
+
+.hero{margin:6px 0 24px}
+.hero h1{font-size:clamp(1.9rem,4.6vw,2.7rem); font-weight:700; line-height:1.04; margin:.5rem 0 .5rem}
+.hero h1 b{color:var(--gold)}
+.hero p{color:var(--silver); max-width:60ch; margin:0}
+
+.panel{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); padding:22px}
+
+/* dropzone */
+.dropzone{border:1.6px dashed var(--gold-line); border-radius:14px; cursor:pointer;
+  background:radial-gradient(600px 200px at 50% 0%, var(--gold-soft), transparent 70%), var(--surface-2);
+  padding:30px 22px; text-align:center; transition:border-color .2s, background .2s}
+.dropzone.drag{border-color:var(--gold); background:var(--gold-soft)}
+.dz-ic{width:54px;height:54px;border-radius:14px;background:var(--gold-soft);color:var(--gold);display:grid;place-items:center;margin:0 auto 12px}
+.dz-title{font-family:"Rajdhani"; font-weight:600; font-size:1.3rem; letter-spacing:.02em}
+.dz-sub{color:var(--muted); font-size:.9rem; margin-top:4px}
+.dz-sub .link{color:var(--gold); font-weight:600; text-decoration:underline; text-underline-offset:2px}
+.dz-files{display:flex; flex-direction:column; gap:8px; margin-top:16px; text-align:left}
+.dz-files:empty{display:none}
+.file{background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:9px 12px; display:flex; align-items:center; gap:.7rem}
+.file .fi{width:30px;height:30px;border-radius:7px;background:var(--surface-3);color:var(--gold);display:grid;place-items:center;font-size:.95rem;flex:none}
+.file .meta{min-width:0; flex:1}
+.file .fn{font-size:.85rem; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.file .fs{font-size:.73rem; color:var(--muted)}
+.file .check{color:var(--ok); flex:none}
+
+.formrow{display:flex; align-items:flex-end; justify-content:space-between; gap:16px; margin-top:20px; flex-wrap:wrap}
+.field{display:flex; flex-direction:column; gap:6px}
+.field label{font-size:.74rem; color:var(--muted); font-weight:600; letter-spacing:.03em; text-transform:uppercase}
+.input{background:var(--surface); border:1px solid var(--line-strong); border-radius:9px; padding:10px 14px; font:inherit; color:var(--ink); min-width:180px}
+.btn{font:inherit; font-weight:600; border-radius:10px; padding:12px 22px; border:1px solid transparent; cursor:pointer;
+  display:inline-flex; align-items:center; gap:.5rem; font-family:"Rajdhani"; letter-spacing:.03em; font-size:1.05rem; text-decoration:none}
+.btn.primary{background:var(--gold); color:var(--on-gold); box-shadow:var(--shadow-gold)}
+.btn.primary:hover{background:var(--gold-2)}
+.btn.primary:disabled{opacity:.45; cursor:not-allowed; box-shadow:none}
+.btn.ghost{background:var(--surface); color:var(--ink); border-color:var(--line-strong)}
+.btn.ghost:hover{background:var(--surface-2); border-color:var(--gold-line)}
+
+/* result */
+.summary{display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; margin-bottom:16px}
+.summary .tots{display:flex; gap:26px; flex-wrap:wrap}
+.summary .tots div{display:flex; flex-direction:column}
+.summary .tots .k{font-size:.7rem; color:var(--muted); text-transform:uppercase; letter-spacing:.1em; font-weight:600}
+.summary .tots .v{font-size:1.4rem; font-weight:700; font-family:"Space Mono"}
+.cards{display:grid; grid-template-columns:repeat(3,1fr); gap:12px}
+.card{background:var(--surface-2); border:1px solid var(--line); border-radius:12px; padding:15px}
+.card .top{display:flex; align-items:center; justify-content:space-between}
+.card .nm{font-weight:600; font-size:.95rem; display:flex; align-items:center; gap:.5rem}
+.pill{font-size:.68rem; padding:2px 9px; border-radius:999px; background:var(--surface-3); color:var(--silver); font-weight:700; font-family:"Space Mono"}
+.dot{width:9px;height:9px;border-radius:50%;flex:none;display:inline-block}
+.card .val{font-size:1.3rem; font-weight:700; margin-top:12px; font-family:"Space Mono"}
+.card .dl{margin-top:12px; font-size:.8rem; color:var(--gold); font-weight:600; display:inline-flex; align-items:center; gap:.35rem; text-decoration:none}
+.card.warn{background:var(--warn-soft); border-color:var(--warn-line)}
+.card.warn .nm{color:var(--warn)} .card.warn .dl{color:var(--warn)} .card .sub{font-size:.79rem; color:var(--muted)}
+
+.confirm{margin-top:18px; border:1px solid var(--gold-line); border-radius:12px; padding:17px 19px;
+  background:linear-gradient(180deg,var(--gold-soft),transparent); display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap}
+.confirm .txt{max-width:52ch} .confirm .txt h3{font-size:1.1rem; font-weight:600; margin-bottom:3px}
+.confirm .txt p{margin:0; font-size:.86rem; color:var(--silver)} .confirm .acts{display:flex; gap:10px; flex-wrap:wrap}
+.note{margin-top:12px; display:flex; gap:.6rem; align-items:flex-start; font-size:.82rem; color:var(--warn);
+  background:var(--warn-soft); border:1px solid var(--warn-line); border-radius:10px; padding:11px 13px}
+.badge-soon{font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--muted);
+  border:1px solid var(--line-strong); border-radius:999px; padding:2px 8px}
+
+.alert{background:var(--warn-soft); border:1px solid var(--warn-line); color:var(--ink); border-radius:12px; padding:16px 18px; margin-bottom:18px}
+.alert h3{color:var(--warn); font-size:1.05rem; margin-bottom:4px}
+.alert p{margin:0; color:var(--silver); font-size:.9rem}
+
+.foot{margin-top:30px; color:var(--muted); font-size:.8rem; text-align:center}
+.foot .brandmark{color:var(--silver); font-size:.85rem}
+
+@media (max-width:720px){ .cards{grid-template-columns:1fr 1fr} }
+@media (max-width:480px){ .cards{grid-template-columns:1fr} .summary .tots{gap:16px} }
