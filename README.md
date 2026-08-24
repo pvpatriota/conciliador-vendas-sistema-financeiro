@@ -117,6 +117,7 @@ esperados em [exemplos/README.md](exemplos/README.md).
 - [x] Pipeline de conversão + conciliação por arquivos
 - [x] Validação em 3 meses de operação
 - [ ] Empacotamento em **Docker** para rodar na rede do cliente
+- [ ] **Interface web** (upload dos relatórios → download das planilhas prontas)
 - [ ] Integração com a **API do sistema financeiro** (criar/editar lançamentos)
 - [ ] **Agente** que efetiva a baixa/conciliação no ERP
 
