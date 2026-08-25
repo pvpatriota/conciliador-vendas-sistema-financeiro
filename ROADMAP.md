@@ -69,6 +69,9 @@ Ideia: unir a interface web com a API para eliminar a importação manual de pla
 Ou seja: o botão "Confirmar e importar" cria os lançamentos no ERP; a conciliação
 final fica para o agente.
 
+Design detalhado (payload, de-para planilha → API, configuração e limites) em
+[docs/API_IMPORTACAO.md](docs/API_IMPORTACAO.md).
+
 ## Fase 4 — Agente de conciliação
 
 - [ ] Agente de navegador (headless) para a **baixa/conciliação** que a API não
