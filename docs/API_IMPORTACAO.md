@@ -59,15 +59,13 @@ Datas provavelmente em `aaaa-mm-dd` (converter do `dd/mm/aaaa` das planilhas —
 confirmar no primeiro POST real). NSU **não** existe no corpo de criação; segue na
 `descricao`/`nota` (como já fazemos) ou via `PATCH` de parcela depois, se preciso.
 
-### metodo_pagamento por forma
+### metodo_pagamento
 
-| Forma | enum |
-|---|---|
-| Débito | `CARTAO_DEBITO` |
-| Crédito | `CARTAO_CREDITO` |
-| PIX | `PIX_PAGAMENTO_INSTANTANEO` |
-| Dinheiro | `DINHEIRO` |
-| iFood / Hanzo | `OUTRO` |
+**`OUTRO` para todas as formas** — a planilha de importação não tem coluna de forma
+de pagamento, então a importação manual grava tudo como "Outros" (confirmado no
+print de um lançamento real). Para replicar a importação manual, usar `OUTRO`.
+(Se um dia quisermos o método real por forma, o enum suporta `CARTAO_DEBITO`,
+`CARTAO_CREDITO`, `PIX_PAGAMENTO_INSTANTANEO`, `DINHEIRO`, etc.)
 
 ## Exemplo de payload (uma venda de débito)
 
@@ -87,24 +85,39 @@ confirmar no primeiro POST real). NSU **não** existe no corpo de criação; seg
       "nota": "",
       "conta_financeira": "<id-da-conta>",
       "detalhe_valor": { "valor_bruto": 173.59, "taxa": 1.74 },
-      "metodo_pagamento": "CARTAO_DEBITO"
+      "metodo_pagamento": "OUTRO"
     }]
   }
 }
 ```
 
-## Configuração única (obtida por GET, uma vez por empresa)
+## Regras de negócio (definidas por Paulo — 25/08/2026)
 
-Estes IDs a API exige mas as planilhas não têm — resolvemos uma vez e guardamos:
+1. **`contato` fica em branco** — a importação manual já lança sem cliente, então
+   replicamos isso. (Validar no 1º POST se a API aceita vazio; o schema marca como
+   obrigatório — se recusar, usar um contato padrão "Consumidor".)
 
-1. **`conta_financeira`** — `GET /v1/conta-financeira` → escolher a conta que recebe
-   (ex.: a conta da adquirente/banco). Um ID.
-2. **`contato` (cliente padrão)** — a criação exige um cliente. Definir um contato
-   padrão (ex.: "Consumidor" ou o nome do canal) e usar o ID dele em todos os
-   lançamentos. (API de contatos/pessoas.)
-3. **De-para de categorias** — `GET /v1/categorias` → mapear cada `Categoria` da
-   planilha (Visa, Mastercard, Elo, PIX, Dinheiro, Hanzo Prod, Ifood) para o
-   `id_categoria` correspondente. Guardar o de-para.
+2. **`conta_financeira` por forma de pagamento** — cada forma vai para a sua conta
+   interna específica. O dinheiro cai primeiro na conta da forma e, só **após a
+   conciliação**, é transferido para a conta do **Banco do Brasil**. De-para:
+
+   | Forma | Conta financeira (interna) |
+   |---|---|
+   | Débito | Cielo Débito |
+   | Crédito | Cielo Crédito |
+   | PIX | PIX |
+   | Dinheiro | *(a confirmar)* |
+   | iFood | *(a confirmar)* |
+   | Hanzo | *(a confirmar)* |
+
+   Resolver cada nome → ID via `GET /v1/conta-financeira`, uma vez, e guardar o
+   de-para forma → id_conta.
+
+3. **Categorias exatamente como na planilha** — usar o valor da coluna `Categoria`
+   como está (Visa, Mastercard, Elo, PIX, Dinheiro, Hanzo Prod, Ifood), igual à
+   importação manual. Para a API, resolver esse nome → `id_categoria` via
+   `GET /v1/categorias` (o nome na planilha já corresponde a uma categoria existente
+   no sistema).
 
 ## Rate limit e idempotência
 
@@ -113,6 +126,15 @@ Estes IDs a API exige mas as planilhas não têm — resolvemos uma vez e guarda
 - **Idempotência** — evitar duplicar se o usuário clicar "importar" duas vezes:
   registrar (por empresa + mês + forma) o que já foi enviado e bloquear reenvio;
   idealmente uma chave por lançamento (NSU/pedido + data + valor).
+
+## Confirmado por um lançamento real (print de 25/08/2026)
+
+Um lançamento já conciliado confirmou o modelo: Cliente em branco; Categoria = `Elo`
+(a bandeira); Descrição = `Taxa/Tarifa: R$ -0.52 | NSU: 722476`; competência 07/07,
+vencimento 08/07; a taxa (0,52) aparece em "Desconto/Tarifas"; Tipo de receita =
+"Lançamento Financeiro"; Forma de pagamento = "Outros". Como estava **conciliado**,
+a Conta exibida era **BANCO DO BRASIL** — pós-conciliação; na criação vai para a
+conta da forma (Cielo Débito etc.).
 
 ## Limite conhecido
 
