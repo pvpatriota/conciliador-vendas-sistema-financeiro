@@ -101,17 +101,20 @@ print de um lançamento real). Para replicar a importação manual, usar `OUTRO`
    interna específica. O dinheiro cai primeiro na conta da forma e, só **após a
    conciliação**, é transferido para a conta do **Banco do Brasil**. De-para:
 
-   | Forma | Conta financeira (interna) |
+   | Forma | Conta financeira (nome exato no CA) |
    |---|---|
-   | Débito | Cielo Débito |
-   | Crédito | Cielo Crédito |
-   | PIX | PIX |
-   | Dinheiro | *(a confirmar)* |
-   | iFood | *(a confirmar)* |
-   | Hanzo | *(a confirmar)* |
+   | Débito | `CIELO DEBITO` |
+   | Crédito | `CIELO CREDITO` |
+   | PIX | `PIX` |
+   | Dinheiro | `CAIXA – DINHEIRO` |
+   | iFood | `IFOOD` |
+   | Hanzo | `PAGAR.ME` |
 
-   Resolver cada nome → ID via `GET /v1/conta-financeira`, uma vez, e guardar o
-   de-para forma → id_conta.
+   Nomes confirmados pelo print das contas (25/08/2026). Resolver cada nome → ID via
+   `GET /v1/conta-financeira`, uma vez, e guardar o de-para forma → id_conta.
+   Destino pós-conciliação = `BANCO DO BRASIL` (Open Finance ativo).
+   Outras contas existentes (fora do fluxo atual): `PLUXEE BENEFICIO`,
+   `TICKET SERVICO`, `VR`, `SANTANDER`, `BB RENDE FACIL`.
 
 3. **Categorias exatamente como na planilha** — usar o valor da coluna `Categoria`
    como está (Visa, Mastercard, Elo, PIX, Dinheiro, Hanzo Prod, Ifood), igual à
